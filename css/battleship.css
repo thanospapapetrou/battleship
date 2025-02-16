@@ -9,12 +9,46 @@ table {
 }
 
 td {
-    background-color: LightBlue;
-    border: 5px solid Navy;
-    /* background-color: PaleGreen; */
-    /* border: 5px solid DarkGreen; */
     text-align: center;
     vertical-align: middle;
-    width: 20px;
-    height: 20px;
+    cursor: default;
+    width: 25px;
+    height: 25px;
+}
+
+td.ocean {
+    background-color: lightblue;
+    border: 1px solid darkblue;
+    color: darkblue;
+}
+
+td.radar {
+    background-color: lightgreen;
+    border: 1px solid darkgreen;
+    color: darkgreen;
+}
+
+td.ship {
+    background-color: grey;
+    border: 1px solid black;
+    color: black;
+}
+
+td.shadow {
+    background-color: lightgrey;
+    border: 1px solid grey;
+    color: grey;
+}
+
+tr.selected > td {
+    border-top: 3px solid black;
+    border-bottom: 3px solid black;
+}
+
+tr.selected > td:first-of-type {
+    border-left: 3px solid black;
+}
+
+tr.selected > td:last-of-type {
+    border-right: 3px solid black;
 }

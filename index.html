@@ -8,9 +8,25 @@
         <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet" />
         <link rel="stylesheet" href="./css/battleship.css" />
         <script src="./js/Battleship.js"></script>
+        <script src="./js/Cell.js"></script>
+        <script src="./js/Difficulty.js"></script>
+        <script src="./js/Direction.js"></script>
+        <script src="./js/Fleet.js"></script>
+        <script src="./js/Grid.js"></script>
         <script src="./js/Ship.js"></script>
     </head>
     <body onload="Battleship.main();">
         <h1>Battleship</h1>
+        <form action="./index.html">
+            <label for="difficulty">Difficulty:</label>
+            <select id="difficulty" name="difficulty">
+                <option value="DUMMY">Dummy</option>
+                <option value="EASY">Easy</option>
+                <option value="HARD">Hard</option>
+                <option value="INSANE">Insane</option>
+            </select>
+            <br />
+            <input type="submit" value="Start" autofocus="autofocus" />
+        </form>
     </body>
 </html>
