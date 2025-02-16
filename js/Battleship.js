@@ -1,4 +1,7 @@
 class Battleship {
+    static #CLASS_OCEAN = 'ocean';
+    static #CLASS_RADAR = 'radar';
+    static #CLASS_SHIP = 'ship';
     static #ELEMENT_CELL = 'td';
     static #ELEMENT_ROW = 'tr';
     static #ELEMENT_TABLE = 'table';
@@ -11,12 +14,13 @@ class Battleship {
         new Battleship();
     }
 
-    static #createGrid() {
+    static #createGrid(clazz) {
         const grid = document.createElement(Battleship.#ELEMENT_TABLE);
         for (let i = 0; i <= Battleship.#WIDTH; i++) {
             const row = document.createElement(Battleship.#ELEMENT_ROW);
             for (let j = 0; j <= Battleship.#HEIGHT; j++) {
                 const cell = document.createElement(Battleship.#ELEMENT_CELL);
+                cell.classList.add(clazz);
                 (i == 0) && (j != 0) && cell.appendChild(document.createTextNode(String.fromCharCode(Battleship.#OFFSET_COLUMN + j)));
                 (j == 0) && (i != 0) && cell.appendChild(document.createTextNode(i));
                 row.appendChild(cell);
@@ -32,6 +36,7 @@ class Battleship {
             const row = document.createElement(Battleship.#ELEMENT_ROW);
             for (let i = 0; i < ship.size; i++) {
                 const cell = document.createElement(Battleship.#ELEMENT_CELL);
+                cell.classList.add(Battleship.#CLASS_SHIP);
                 cell.appendChild(document.createTextNode(ship.symbol));
                 row.appendChild(cell);
             }
@@ -41,9 +46,9 @@ class Battleship {
     }
 
     constructor() {
-        Battleship.#createGrid();
+        Battleship.#createGrid(Battleship.#CLASS_OCEAN);
         Battleship.#createShipList();
-        Battleship.#createGrid();
+        Battleship.#createGrid(Battleship.#CLASS_RADAR);
         Battleship.#createShipList();
     }
 }

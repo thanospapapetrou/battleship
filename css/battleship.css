@@ -9,12 +9,26 @@ table {
 }
 
 td {
-    background-color: LightBlue;
-    border: 5px solid Navy;
-    /* background-color: PaleGreen; */
-    /* border: 5px solid DarkGreen; */
     text-align: center;
     vertical-align: middle;
     width: 20px;
     height: 20px;
+}
+
+td.ocean {
+    background-color: lightblue;
+    border: 1px solid darkblue;
+    color: darkblue;
+}
+
+td.radar {
+    background-color: lightgreen;
+    border: 1px solid darkgreen;
+    color: darkgreen;
+}
+
+td.ship {
+    background-color: lightgrey;
+    border: 1px solid dimgrey;
+    color: dimgrey;
 }
