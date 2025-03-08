@@ -146,7 +146,7 @@ class Battleship {
         const direction = Object.values(Direction)[Math.floor(Math.random() * Object.keys(Direction).length)];
         if (this.#radar.canPlace(i, j, direction, ship)) {
             this.#radar.renderShip(i, j, direction, ship);
-            return {i: i, j: j, direction: direction};
+            return {i, j, direction};
         }
         return this.#placeEnemyShip(ship);
     }
@@ -167,7 +167,7 @@ class Battleship {
 //                for (let i = offsetY + offset; i < Battleship.HEIGHT; i += step) {
 //                    for (let j = offsetX + offset; j < Battleship.WIDTH; j+= step) {
 //                        if (this.#hardIsValid(i, j)) {
-//                            return {i: i, j: j};
+//                            return {i, j};
 //                        }
 //                    }
 //                }
