@@ -5,6 +5,8 @@ class Battleship {
     static ELEMENT_CELL = 'td';
     static ELEMENT_ROW = 'tr';
     static ELEMENT_TABLE = 'table';
+    static FORMAT_COLUMN = (j) => String.fromCharCode('A'.charCodeAt(0) + j);
+    static FORMAT_ROW = (i) => (i + 1).toString();
     static HEIGHT = 10;
     static WIDTH = 10;
 
@@ -27,7 +29,6 @@ class Battleship {
     #difficulty;
 
     static main() {
-        // TODO reduce for loops
         const difficulty = Difficulty[new URLSearchParams(location.search).get(Battleship.#PARAMETER_DIFFICULTY)];
         if (difficulty) {
             document.querySelector(Battleship.#SELECTOR_FORM).style.display = Battleship.#DISPLAY_NONE;
@@ -151,36 +152,15 @@ class Battleship {
         return this.#placeEnemyShip(ship);
     }
 
-    #cheat() { // TODO render rows and columns
-        console.log('┌' + Array(Battleship.WIDTH).fill('─').join('┬') + '┐\n│'
-            + this.#enemy.map(r => r.map(c => c ? c.symbol : ' ').join('│')).join('│\n├' + Array(Battleship.WIDTH).fill('─').join('┼') + '┤\n│')
-            + '│\n└' + Array(Battleship.WIDTH).fill('─').join('┴') + '┘');
+    #cheat() {
+        console.log('┌' + Array(this.#enemy[0].length + 1).fill('──').join('┬') + '┐\n│  │'
+                + [...Array(this.#enemy[0].length).keys().map((j) => Battleship.FORMAT_COLUMN(j).padEnd(2))].join('│')
+                + '│\n├' + Array(this.#enemy[0].length + 1).fill('──').join('┼') + '┤\n│'
+                + this.#enemy
+                    .map((r, i) => (Battleship.FORMAT_ROW(i).padStart(2) + '│')
+                            + r.map((c) => (c?.symbol || ' ').padEnd(2)).join('│'))
+                    .join('│\n├' + Array(this.#enemy[0].length + 1).fill('──').join('┼') + '┤\n│')
+                + '│\n└' + Array(this.#enemy[0].length + 1).fill('──').join('┴') + '┘');
     }
-
-//    #hard() {
-//        const min = Math.min(...Object.values(Ship).map((ship) => ship.size));
-//        const max = Math.pow(2, Math.ceil(Math.log(Math.max(Battleship.WIDTH, Battleship.HEIGHT)) / Math.log(2)));
-//        const offsetX = (Battleship.WIDTH - max) / 2;
-//        const offsetY = (Battleship.HEIGHT - max) / 2;
-//        for (let offset = 0; offset < min; offset++) {
-//            for (let step = max; step >= min; step /= 2) {
-//                for (let i = offsetY + offset; i < Battleship.HEIGHT; i += step) {
-//                    for (let j = offsetX + offset; j < Battleship.WIDTH; j+= step) {
-//                        if (this.#hardIsValid(i, j)) {
-//                            return {i, j};
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//
-//    #hardIsValid(i, j) {
-//        if ((i < 0) || (i >= Battleship.HEIGHT) || (j < 0) || (j >= Battleship.WIDTH)) {
-//            return false;
-//        }
-//        const content = this.#ocean.children[i + 1].children[j + 1].content;
-//        return (content != Battleship.CONTENT_EXPLOSION) && (content != Battleship.#CONTENT_WATER);
-//    }
 }
 

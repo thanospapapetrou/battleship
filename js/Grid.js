@@ -1,6 +1,4 @@
 class Grid extends Array {
-    static #COLUMN = (j) => String.fromCharCode('A'.charCodeAt(0) + j);
-
     constructor(width, height, clazz) {
         super();
         const table = document.createElement(Battleship.ELEMENT_TABLE);
@@ -10,7 +8,7 @@ class Grid extends Array {
         headerRow.appendChild(headerCell);
         for (let j = 0; j < width; j++) {
             const headerCell = document.createElement(Battleship.ELEMENT_CELL);
-            headerCell.appendChild(document.createTextNode(Grid.#COLUMN(j)));
+            headerCell.appendChild(document.createTextNode(Battleship.FORMAT_COLUMN(j)));
             headerCell.classList.add(clazz);
             headerRow.appendChild(headerCell);
         }
@@ -19,7 +17,7 @@ class Grid extends Array {
             this[i] = [];
             const row = document.createElement(Battleship.ELEMENT_ROW);
             const headerColumn = document.createElement(Battleship.ELEMENT_CELL);
-            headerColumn.appendChild(document.createTextNode(i + 1));
+            headerColumn.appendChild(document.createTextNode(Battleship.FORMAT_ROW(i)));
             headerColumn.classList.add(clazz);
             row.appendChild(headerColumn);
             for (let j = 0; j < width; j++) {
