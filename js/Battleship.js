@@ -7,8 +7,8 @@ class Battleship {
     static ELEMENT_TABLE = 'table';
     static FORMAT_COLUMN = (j) => String.fromCharCode('A'.charCodeAt(0) + j);
     static FORMAT_ROW = (i) => (i + 1).toString();
-    static HEIGHT = 10;
-    static WIDTH = 10;
+    static HEIGHT = 18;
+    static WIDTH = 20;
 
     static #BUTTON_LEFT = 0;
     static #CLASS_OCEAN = 'ocean';
