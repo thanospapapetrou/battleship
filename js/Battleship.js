@@ -7,8 +7,8 @@ class Battleship {
     static ELEMENT_TABLE = 'table';
     static FORMAT_COLUMN = (j) => String.fromCharCode('A'.charCodeAt(0) + j);
     static FORMAT_ROW = (i) => (i + 1).toString();
-    static HEIGHT = 18;
-    static WIDTH = 20;
+    static HEIGHT = 10;
+    static WIDTH = 10;
 
     static #BUTTON_LEFT = 0;
     static #CLASS_OCEAN = 'ocean';
@@ -26,6 +26,7 @@ class Battleship {
     #radar;
     #enemyFleet;
     #enemy;
+    #timer;
     #difficulty;
 
     static main() {
@@ -42,6 +43,7 @@ class Battleship {
         this.#radar = new Grid(Battleship.WIDTH, Battleship.HEIGHT, Battleship.#CLASS_RADAR);
         this.#enemyFleet = new Fleet();
         this.#enemy = [];
+        this.#timer = new Timer();
         this.#difficulty = difficulty;
     }
 
@@ -64,10 +66,10 @@ class Battleship {
         this.#placeEnemyFleet();
         this.#cheat();
         this.#ocean.reset();
+        this.#timer.start();
         for (let i = 0; i < this.#radar.length; i++) {
             for (let j = 0; j < this.#radar[i].length; j++) {
                 this.#radar[i][j].fire((event) => this.fire(i, j));
-                // TODO start timer
             }
         }
     }
@@ -78,7 +80,7 @@ class Battleship {
         this.#radar[i][j].content = enemyShip ? Battleship.CONTENT_EXPLOSION : Battleship.#CONTENT_X;
         this.#enemyFleet.hit(enemyShip);
         if (this.#enemyFleet.isSunk()) {
-            // TODO stop timer
+            this.#timer.stop();
             this.#radar.reset();
             alert(Battleship.#MESSAGE_WON);
         } else {
@@ -89,7 +91,7 @@ class Battleship {
             this.#ocean[enemyFire.i][enemyFire.j].clazz = friendlyShip ? Battleship.CLASS_SHIP : null;
             this.#friendlyFleet.hit(friendlyShip);
             if (this.#friendlyFleet.isSunk()) {
-                // TODO stop timer
+                this.#timer.stop();
                 this.#radar.reset();
                 alert(Battleship.#MESSAGE_LOST);
             }
