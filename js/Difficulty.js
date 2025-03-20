@@ -13,44 +13,30 @@ const Difficulty = Object.freeze({
         return cells[Math.floor(Math.random() * cells.length)];
     },
     HARD: (ocean) => {
-
-//        if (_hits.length) { // a ship is hit
-//            const firstShipHits = _findHits(_hits[0].ship);
-//            if (firstShipHits.length > 1) { // it's been hit multiple times; can determine direction
-//                const cells = [];
-//                if (_isHorizontal(_hits[0].ship)) {
-//                    for (let j = firstShipHits[0].j + 1; j < firstShipHits[1].j; j++) {
-//                        cells.push({i: firstShipHits[0].i, j});
-//                    }
-//                    const cell = cells
-//                            .filter((cell) => ocean[cell.i][cell.j].content != Battleship.CONTENT_EXPLOSION)
-//                            .filter((cell) => ocean[cell.i][cell.j].content != Battleship.CONTENT_WATER)[0];
-//                    if (cell) {
-//                        return _checkHit(ocean, cell);
-//                    }
-//                } else {
-//
-//                }
-//            }
-//            const cell = [...Object.values(Direction)
-//                .map((direction) => direction.move(_hits[0].i, _hits[0].j, min))
-//                .filter((cell) => cell.i >= 0)
-//                .filter((cell) => cell.j < ocean.length)
-//                .filter((cell) => cell.j >= 0)
-//                .filter((cell) => cell.j < ocean[cell.i].length)
-//                .filter((cell) => ocean[cell.i][cell.j].content != Battleship.CONTENT_EXPLOSION)
-//                .filter((cell) => ocean[cell.i][cell.j].content != Battleship.CONTENT_WATER)][0];
-//                // TODO if no direction found yet, try hitting next cell
-//            if (cell) {
-//                return _checkHit(ocean, cell);
-//            }
-//        }
-
-        const cell = _pattern(ocean).filter((cell) => _isValid(ocean, cell))[0];
-        if (cell) {
-            return _checkHit(ocean, cell);
+        const min = Math.min(...Object.values(Ship).map((ship) => ship.size));
+        for (let ship of Object.values(Ship).filter((ship) => !_isSunk(ship)).sort((a, b) => a.size - b.size)) {
+            const hits = _hits.filter((hit) => hit.ship == ship);
+            if (hits.length) {
+                if (_isHorizontal(ocean, hits[0].ship)) {
+                    const cell = _pinpointHorizontal(ocean, min, hits[0]).filter((cell) => _isValid(ocean, cell))[0];
+                    if (cell) {
+                        return _checkHit(ocean, cell);
+                    }
+                }
+                if (_isVertical(ocean, hits[0].ship)) {
+                    const cell = _pinpointVertical(ocean, min, hits[0]).filter((cell) => _isValid(ocean, cell))[0];
+                    if (cell) {
+                        return _checkHit(ocean, cell);
+                    }
+                }
+                const cell = _pinpoint(ocean, min, hits[0]).filter((cell) => _isValid(ocean, cell))[0];
+                if (cell) {
+                    return _checkHit(ocean, cell);
+                }
+            }
         }
-        return _checkHit(ocean, Difficulty.DUMMY(ocean));
+        const cell = _pattern(ocean, min).filter((cell) => _isValid(ocean, cell))[0];
+        return _checkHit(ocean, cell ? cell : Difficulty.DUMMY(ocean));
     },
     INSANE: (ocean) => [...ocean.keys()
         .flatMap((i) => ocean[i].keys()
@@ -60,8 +46,7 @@ const Difficulty = Object.freeze({
 
 _hits = [];
 
-function _pattern(ocean) {
-    const min = Math.min(...Object.values(Ship).map((ship) => ship.size));
+function _pattern(ocean, min) {
     const max = min * Math.pow(2, Math.ceil(Math.log(Math.max(ocean.length, ocean[0].length) / min) / Math.log(2)));
     const offsetX = Math.floor((Battleship.WIDTH - max) / 2);
     const offsetY = Math.floor((Battleship.HEIGHT - max) / 2);
@@ -78,16 +63,85 @@ function _pattern(ocean) {
     return cells;
 }
 
-// TODO
-//function _findHits(ship) {
-//    return _hits.filter((hit) => hit.ship == ship);
-//}
-//
-//function _isHorizontal(ship) {
-//    // TODO you can deduce it's horizontal by other hits hitting other ships
-//    const hits = _findHits(ship);
-//    return hits[0].i == hits[1].i;
-//}
+function _pinpoint(ocean, min, hit) {
+    const cells = [];
+    for (let direction of Object.values(Direction)) {
+        cells.push(direction.move(hit.i, hit.j, (hit.ship.size > min) ? min : 1));
+    }
+    return cells;
+}
+
+function _pinpointHorizontal(ocean, min, hit) {
+    const west = _hits.filter((h) => h.ship == hit.ship).sort((a, b) => a.j - b.j)[0].j;
+    const east = _hits.filter((h) => h.ship == hit.ship).sort((a, b) => b.j - a.j)[0].j;
+    const cells = [];
+    for (let j = west + 1; j < east; j++) {
+        cells.push({i: hit.i, j});
+    }
+    cells.push(Direction.EAST.move(hit.i, east, (east - west + min < hit.ship.size) ? min : 1));
+    cells.push(Direction.WEST.move(hit.i, west, (east - west + min < hit.ship.size) ? min : 1));
+    return cells;
+}
+
+function _pinpointVertical(ocean, min, hit) {
+    const north = _hits.filter((h) => h.ship == hit.ship).sort((a, b) => a.i - b.i)[0].i;
+    const south = _hits.filter((h) => h.ship == hit.ship).sort((a, b) => b.i - a.i)[0].i;
+    const cells = [];
+    for (let i = north + 1; i < south; i++) {
+        cells.push({i, j: hit.j});
+    }
+    cells.push(Direction.NORTH.move(north, hit.j, (south - north + min < hit.ship.size) ? min : 1));
+    cells.push(Direction.SOUTH.move(south, hit.j, (south - north + min < hit.ship.size) ? min : 1));
+    return cells;
+}
+
+function _isSunk(ship) {
+    return _hits.filter((hit) => hit.ship == ship).length == ship.size;
+}
+
+function _isHorizontal(ocean, ship) {
+    const hits = _hits.filter((hit) => hit.ship == ship);
+    if (hits.length > 1) {
+        return hits[0].i == hits[1].i;
+    }
+    let previous = null;
+    for (let i = 0; i < hits[0].i; i++) {
+        if ((ocean[i][hits[0].j].content == Battleship.CONTENT_EXPLOSION)
+                || (ocean[i][hits[0].j].content == Battleship.CONTENT_WATER)) {
+            previous = i;
+        }
+    }
+    let next = null;
+    for (let i = hits[0].i + 1; i < ocean.length; i++) {
+        if ((ocean[i][hits[0].j].content == Battleship.CONTENT_EXPLOSION)
+                || (ocean[i][hits[0].j].content == Battleship.CONTENT_WATER)) {
+            next = i;
+        }
+    }
+    return (previous && next && (next - previous <= ship.size)) ? true : null;
+}
+
+function _isVertical(ocean, ship) {
+    const hits = _hits.filter((hit) => hit.ship == ship);
+    if (hits.length > 1) {
+        return hits[0].j == hits[1].j;
+    }
+    let previous = null;
+    for (let j = 0; j < hits[0].j; j++) {
+        if ((ocean[hits[0].i][j].content == Battleship.CONTENT_EXPLOSION)
+                || (ocean[hits[0].i][j].content == Battleship.CONTENT_WATER)) {
+            previous = j;
+        }
+    }
+    let next = null;
+    for (let j = hits[0].j + 1; j < ocean.length; j++) {
+        if ((ocean[hits[0].i][j].content == Battleship.CONTENT_EXPLOSION)
+                || (ocean[hits[0].i][j].content == Battleship.CONTENT_WATER)) {
+            next = j;
+        }
+    }
+    return (previous && next && (next - previous <= ship.size)) ? true : null;
+}
 
 function _isValid(ocean, cell) {
     return (cell.i >= 0) && (cell.i < ocean.length) && (cell.j >= 0) && (cell.j < ocean[cell.i].length)
@@ -96,18 +150,6 @@ function _isValid(ocean, cell) {
 }
 
 function _checkHit(ocean, cell) {
-    if (ocean[cell.i][cell.j].ship) {
-        _hits.push({i: cell.i, j: cell.j, ship: ocean[cell.i][cell.j].ship});
-        _hits.sort(_sortHits);
-    }
+    (ocean[cell.i][cell.j].ship) && _hits.push({i: cell.i, j: cell.j, ship: ocean[cell.i][cell.j].ship});
     return cell;
-}
-
-function _sortHits(a, b) {
-    const sizeComparison = a.ship.size - b.ship.size;
-    if (sizeComparison == 0) {
-        const iComparison = a.i - b.i;
-        return (iComparison == 0) ? (a.j - b.j) : iComparison;
-    }
-    return sizeComparison;
 }
